@@ -1,0 +1,18 @@
+# Android 编译产物
+app/build/
+build/
+.gradle/
+*.iml
+*.ipr
+*.iws
+.idea/
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+bin/
+gen/
+out/
+.DS_Store
+Thumbs.db
