@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">抢单助手</string>
-    <string name="accessibility_service_label">抢单助手</string>
-    <string name="accessibility_service_description">用于监控外卖接单页面，当检测到指定关键词时自动点击抢单按钮</string>
-</resources>
