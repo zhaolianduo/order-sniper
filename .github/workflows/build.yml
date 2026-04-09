@@ -24,11 +24,13 @@ jobs:
     - name: Show project structure
       run: |
         echo "=== Project files ==="
-        find . -type f -name "*.gradle*" -o -name "AndroidManifest.xml" -o -name "settings.gradle" | head -20
+        find . -type f \( -name "*.gradle*" -o -name "AndroidManifest.xml" -o -name "settings.gradle" \) | head -20
         echo "=== Root build.gradle ==="
         cat build.gradle
         echo "=== settings.gradle ==="
         cat settings.gradle
+        echo "=== app/build.gradle ==="
+        cat app/build.gradle
     
     - name: Cache Gradle packages
       uses: actions/cache@v4
@@ -43,9 +45,19 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     
-    - name: Build APK
+    - name: Build debug APK
       run: |
-        ./gradlew assembleDebug --stacktrace --info 2>&1 | tail -100
+        ./gradlew clean assembleDebug --stacktrace 2>&1
+      shell: bash
+    
+    - name: Check build outputs
+      run: |
+        echo "=== Checking for APK ==="
+        find . -name "*.apk" -type f 2>/dev/null || echo "No APK found"
+        echo "=== Checking build directory ==="
+        ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo "APK debug dir not found"
+        echo "=== Checking all outputs ==="
+        ls -la app/build/outputs/ 2>/dev/null || echo "outputs dir not found"
     
     - name: Upload APK
       if: success()
