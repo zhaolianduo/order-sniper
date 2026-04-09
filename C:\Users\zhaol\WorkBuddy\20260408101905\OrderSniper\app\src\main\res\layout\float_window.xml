@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/float_window_bg"
+    android:padding="10dp"
+    android:minWidth="80dp">
+
+    <!-- 顶部：状态文字 + 关闭按钮 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="8dp">
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="已停止"
+            android:textSize="12sp"
+            android:textColor="#999999"
+            android:textStyle="bold"/>
+
+        <!-- 设置按钮 -->
+        <TextView
+            android:id="@+id/btn_settings"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:text="⚙"
+            android:textSize="16sp"
+            android:gravity="center"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- 关闭按钮 -->
+        <TextView
+            android:id="@+id/btn_close"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:text="✕"
+            android:textSize="13sp"
+            android:textColor="#999999"
+            android:gravity="center"/>
+    </LinearLayout>
+
+    <!-- 开关按钮 -->
+    <TextView
+        android:id="@+id/btn_toggle"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:text="开始抢单"
+        android:textSize="13sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:background="@drawable/btn_round"
+        android:clickable="true"
+        android:focusable="true"/>
+
+</LinearLayout>
