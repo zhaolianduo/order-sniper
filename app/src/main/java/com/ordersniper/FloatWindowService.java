@@ -69,6 +69,12 @@ public class FloatWindowService extends Service {
 
         IntentFilter filter = new IntentFilter(ACTION_STATUS_UPDATE);
         registerReceiver(statusReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+
+        // 启动时主动查询抢单服务状态
+        if (OrderSniperService.instance != null) {
+            isRunning = OrderSniperService.instance.isRunning();
+            updateUI();
+        }
     }
 
     private void initFloatWindow() {
