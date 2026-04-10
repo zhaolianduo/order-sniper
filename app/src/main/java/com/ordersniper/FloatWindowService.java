@@ -136,9 +136,13 @@ public class FloatWindowService extends Service {
                 Toast.makeText(this, "抢单服务未运行，请先开启无障碍服务", Toast.LENGTH_SHORT).show();
                 return;
             }
+            // 立即切换本地状态并更新UI
+            isRunning = !isRunning;
+            updateUI();
+            // 发送广播让抢单服务也切换状态
             Intent intent = new Intent(OrderSniperService.ACTION_TOGGLE);
             sendBroadcast(intent);
-            Toast.makeText(this, isRunning ? "已停止抢单" : "已开始抢单", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, isRunning ? "已开始抢单" : "已停止抢单", Toast.LENGTH_SHORT).show();
         });
 
         // 关闭悬浮窗（不停止服务）
