@@ -3,10 +3,11 @@ package com.ordersniper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -22,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     private Button btnOpenAccessibility;
     private TextView tvAccessibilityStatus;
     private TextView tvFloatStatus;
-    private TextView tvKeywordsHint;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +36,14 @@ public class MainActivity extends AppCompatActivity {
         tvAccessibilityStatus = findViewById(R.id.tv_accessibility_status);
         tvFloatStatus = findViewById(R.id.tv_float_status);
 
+        // 请求忽略电池优化
+        requestBatteryOptimization();
+
         // 加载已保存的关键词
         SharedPreferences prefs = getSharedPreferences(AppConstants.PREFS_NAME, MODE_PRIVATE);
         String saved = prefs.getString(AppConstants.KEY_KEYWORDS, "东方学院");
         etKeywords.setText(saved);
 
-        // 保存关键词
         btnSave.setOnClickListener(v -> {
             String keywords = etKeywords.getText().toString().trim();
             if (TextUtils.isEmpty(keywords)) {
@@ -49,13 +51,11 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             prefs.edit().putString(AppConstants.KEY_KEYWORDS, keywords).apply();
-            // 通知服务更新关键词
             Intent intent = new Intent(OrderSniperService.ACTION_KEYWORDS_CHANGED);
             sendBroadcast(intent);
             Toast.makeText(this, "关键词已保存：" + keywords, Toast.LENGTH_SHORT).show();
         });
 
-        // 开启悬浮窗
         btnStartFloat.setOnClickListener(v -> {
             if (!Settings.canDrawOverlays(this)) {
                 Toast.makeText(this, "请先授予悬浮窗权限", Toast.LENGTH_SHORT).show();
@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "悬浮窗已启动，可切换到目标App", Toast.LENGTH_SHORT).show();
         });
 
-        // 跳转无障碍设置
         btnOpenAccessibility.setOnClickListener(v -> {
             Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
             startActivity(intent);
@@ -81,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void refreshStatus() {
-        // 无障碍服务状态
         boolean accessibilityOn = OrderSniperService.instance != null;
         if (accessibilityOn) {
             tvAccessibilityStatus.setText("✅ 无障碍服务：已开启");
@@ -93,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
             btnOpenAccessibility.setText("前往开启无障碍服务 →");
         }
 
-        // 悬浮窗权限
         boolean overlayOk = Settings.canDrawOverlays(this);
         if (overlayOk) {
             tvFloatStatus.setText("✅ 悬浮窗权限：已授予");
@@ -108,5 +105,20 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                 Uri.parse("package:" + getPackageName()));
         startActivity(intent);
+    }
+
+    private void requestBatteryOptimization() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PowerManager pm = (PowerManager) getSystemService(POWER_SERVICE);
+            if (pm != null && !pm.isIgnoringBatteryOptimizations(getPackageName())) {
+                Intent intent = new Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                intent.setData(Uri.parse("package:" + getPackageName()));
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    // 部分手机可能不支持
+                }
+            }
+        }
     }
 }
