@@ -164,14 +164,16 @@ public class FloatWindowService extends Service {
     }
 
     private void updateUI() {
-        if (tvStatus == null) return;
+        if (tvStatus == null || btnToggle == null) return;
         if (isRunning) {
             tvStatus.setText("抢单中");
             tvStatus.setTextColor(Color.parseColor("#FF6600"));
+            btnToggle.setText("停止抢单");
             btnToggle.setBackgroundColor(Color.parseColor("#FF6600"));
         } else {
             tvStatus.setText("已停止");
             tvStatus.setTextColor(Color.parseColor("#999999"));
+            btnToggle.setText("开始抢单");
             btnToggle.setBackgroundColor(Color.parseColor("#CCCCCC"));
         }
     }
