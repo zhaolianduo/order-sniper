@@ -189,18 +189,29 @@ public class OrderSniperService extends AccessibilityService {
         List<AccessibilityNodeInfo> allNodes = new ArrayList<>();
         collectAllNodes(root, allNodes);
 
-        for (AccessibilityNodeInfo node : allNodes) {
-            CharSequence text = node.getText();
-            if (text == null) continue;
-            String textStr = text.toString();
+        // 方案1: 直接扫描所有"抢单"按钮（优先级高）
+        boolean clicked = scanForGrabButton(allNodes);
+        if (clicked) {
+            lastClickTime = System.currentTimeMillis();
+            vibrateFeedback();
+            return;
+        }
 
-            for (String keyword : keywords) {
-                if (textStr.contains(keyword)) {
-                    Log.d(TAG, "命中关键词 [" + keyword + "] 在文本: " + textStr);
-                    if (tryClickSnatButton(node)) {
-                        lastClickTime = System.currentTimeMillis();
-                        vibrateFeedback();
-                        return;
+        // 方案2: 如果关键词列表不为空，也扫描关键词匹配
+        if (!keywords.isEmpty()) {
+            for (AccessibilityNodeInfo node : allNodes) {
+                CharSequence text = node.getText();
+                if (text == null) continue;
+                String textStr = text.toString();
+
+                for (String keyword : keywords) {
+                    if (textStr.contains(keyword)) {
+                        Log.d(TAG, "命中关键词 [" + keyword + "] 在文本: " + textStr);
+                        if (tryClickSnatButton(node)) {
+                            lastClickTime = System.currentTimeMillis();
+                            vibrateFeedback();
+                            return;
+                        }
                     }
                 }
             }
@@ -209,6 +220,39 @@ public class OrderSniperService extends AccessibilityService {
         for (AccessibilityNodeInfo n : allNodes) {
             if (n != null) n.recycle();
         }
+    }
+
+    // 直接扫描并点击"抢单"按钮
+    private boolean scanForGrabButton(List<AccessibilityNodeInfo> allNodes) {
+        for (AccessibilityNodeInfo node : allNodes) {
+            CharSequence text = node.getText();
+            if (text == null) continue;
+            String textStr = text.toString();
+
+            if (textStr.contains("抢单")) {
+                Log.d(TAG, "找到抢单按钮: " + textStr);
+
+                // 尝试直接点击当前节点
+                if (node.isClickable()) {
+                    Log.d(TAG, "直接点击抢单按钮");
+                    boolean success = node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    if (success) return true;
+                }
+
+                // 尝试点击父节点
+                AccessibilityNodeInfo parent = node.getParent();
+                if (parent != null) {
+                    if (parent.isClickable()) {
+                        Log.d(TAG, "点击父节点抢单按钮");
+                        boolean success = parent.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        parent.recycle();
+                        if (success) return true;
+                    }
+                    parent.recycle();
+                }
+            }
+        }
+        return false;
     }
 
     private boolean tryClickSnatButton(AccessibilityNodeInfo keywordNode) {
