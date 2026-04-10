@@ -37,6 +37,7 @@
             android:name=".OrderSniperService"
             android:exported="true"
             android:enabled="true"
+            android:foregroundServiceType="specialUse"
             android:label="@string/accessibility_service_label"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
@@ -53,7 +54,8 @@
         <!-- 悬浮窗服务 -->
         <service
             android:name=".FloatWindowService"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="specialUse" />
 
     </application>
 </manifest>
