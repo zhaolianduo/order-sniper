@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- 悬浮窗权限 -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <!-- 无障碍服务不需要额外声明权限，但需要在设置中手动开启 -->
-    <!-- 震动反馈 -->
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!-- 开机自启 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
     <application
         android:allowBackup="true"
@@ -17,7 +16,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OrderSniper">
 
-        <!-- 主界面 -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -28,7 +26,6 @@
             </intent-filter>
         </activity>
 
-        <!-- 无障碍服务 -->
         <service
             android:name=".OrderSniperService"
             android:exported="true"
@@ -42,7 +39,6 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
-        <!-- 悬浮窗服务 -->
         <service
             android:name=".FloatWindowService"
             android:exported="false" />
