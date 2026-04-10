@@ -42,23 +42,35 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
     
+    - name: Check gradlew
+      run: |
+        echo "=== gradlew file info ==="
+        ls -la gradlew
+        file gradlew
+        head -5 gradlew
+        echo "=== gradle-wrapper.properties ==="
+        cat gradle/wrapper/gradle-wrapper.properties
+        echo "=== gradle-wrapper.jar info ==="
+        ls -la gradle/wrapper/gradle-wrapper.jar
+        file gradle/wrapper/gradle-wrapper.jar
+    
     - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
+      run: chmod +x gradlew && ls -la gradlew
     
     - name: Build debug APK
       run: |
-        ./gradlew clean assembleDebug --stacktrace 2>&1
+        ./gradlew clean assembleDebug --stacktrace 2>&1 | tee build.log
+        echo "=== Gradle exit code: $? ==="
       shell: bash
     
-    - name: Check build outputs
+    - name: Show build log on failure
+      if: failure()
       run: |
-        echo "=== Checking for APK ==="
-        find . -name "*.apk" -type f 2>/dev/null || echo "No APK found"
-        echo "=== Checking build directory ==="
-        ls -la app/build/outputs/apk/debug/ 2>/dev/null || echo "APK debug dir not found"
-        echo "=== Checking all outputs ==="
-        ls -la app/build/outputs/ 2>/dev/null || echo "outputs dir not found"
-    
+        echo "=== Last 100 lines of build log ==="
+        tail -100 build.log 2>/dev/null || echo "No build.log found"
+        echo "=== app/build directory ==="
+        ls -la app/build/ 2>/dev/null || echo "app/build not found"
+
     - name: Upload APK
       if: success()
       uses: actions/upload-artifact@v4
