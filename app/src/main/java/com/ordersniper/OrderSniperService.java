@@ -14,6 +14,7 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.os.Vibrator;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -26,6 +27,7 @@ import java.util.List;
 
 /**
  * 核心无障碍服务 - 前台服务版本
+ * 启动为前台服务，显示常驻通知，防止被系统杀掉
  */
 public class OrderSniperService extends AccessibilityService {
 
@@ -35,12 +37,14 @@ public class OrderSniperService extends AccessibilityService {
     private static final String CHANNEL_ID = "order_sniper_service";
     private static final int NOTIFICATION_ID = 1001;
 
+    // 单例引用
     public static OrderSniperService instance;
 
     private boolean isRunning = false;
     private List<String> keywords = new ArrayList<>();
     private Handler handler = new Handler(Looper.getMainLooper());
 
+    // 防重复点击
     private long lastClickTime = 0;
     private static final long CLICK_COOLDOWN_MS = 3000;
 
@@ -52,9 +56,7 @@ public class OrderSniperService extends AccessibilityService {
                 isRunning = !isRunning;
                 Log.d(TAG, "抢单服务状态: " + (isRunning ? "开启" : "关闭"));
                 updateNotification();
-                Intent update = new Intent(FloatWindowService.ACTION_STATUS_UPDATE);
-                update.putExtra("running", isRunning);
-                sendBroadcast(update);
+                broadcastStatus();
             } else if (ACTION_KEYWORDS_CHANGED.equals(action)) {
                 loadKeywords();
             }
@@ -74,7 +76,16 @@ public class OrderSniperService extends AccessibilityService {
         filter.addAction(ACTION_KEYWORDS_CHANGED);
         registerReceiver(controlReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
 
+        // 广播初始状态，让悬浮窗同步
+        broadcastStatus();
+
         Log.d(TAG, "无障碍服务已连接");
+    }
+
+    private void broadcastStatus() {
+        Intent update = new Intent(FloatWindowService.ACTION_STATUS_UPDATE);
+        update.putExtra("running", isRunning);
+        sendBroadcast(update);
     }
 
     private void createNotificationChannel() {
