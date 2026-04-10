@@ -163,7 +163,6 @@ public class OrderSniperService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (!isRunning) return;
-        if (keywords.isEmpty()) return;
 
         int type = event.getEventType();
         if (type != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
