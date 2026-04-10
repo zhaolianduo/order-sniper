@@ -73,8 +73,11 @@ public class FloatWindowService extends Service {
         // 启动时主动查询抢单服务状态
         if (OrderSniperService.instance != null) {
             isRunning = OrderSniperService.instance.isRunning();
-            updateUI();
+            Toast.makeText(this, "检测到抢单服务，状态: " + (isRunning ? "运行中" : "已停止"), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "抢单服务未启动，请先在无障碍设置中开启", Toast.LENGTH_LONG).show();
         }
+        updateUI();
     }
 
     private void initFloatWindow() {
@@ -129,8 +132,13 @@ public class FloatWindowService extends Service {
 
         // 开关按钮
         btnToggle.setOnClickListener(v -> {
+            if (OrderSniperService.instance == null) {
+                Toast.makeText(this, "抢单服务未运行，请先开启无障碍服务", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(OrderSniperService.ACTION_TOGGLE);
             sendBroadcast(intent);
+            Toast.makeText(this, isRunning ? "已停止抢单" : "已开始抢单", Toast.LENGTH_SHORT).show();
         });
 
         // 关闭悬浮窗（不停止服务）
