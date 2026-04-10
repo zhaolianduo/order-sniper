@@ -10,7 +10,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- 标题 -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -21,7 +20,6 @@
             android:layout_marginBottom="20dp"
             android:gravity="center"/>
 
-        <!-- 权限状态卡片 -->
         <androidx.cardview.widget.CardView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
@@ -73,7 +71,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- 关键词设置卡片 -->
         <androidx.cardview.widget.CardView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
@@ -111,6 +108,8 @@
                     android:layout_height="wrap_content"
                     android:hint="输入关键词，多个用英文逗号分隔"
                     android:textSize="14sp"
+                    android:textColor="#333333"
+                    android:textColorHint="#999999"
                     android:padding="12dp"
                     android:background="@drawable/input_bg"
                     android:layout_marginBottom="12dp"
@@ -128,7 +127,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- 启动悬浮窗 -->
         <androidx.cardview.widget.CardView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
@@ -173,7 +171,6 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- 使用说明 -->
         <androidx.cardview.widget.CardView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:layout_width="match_parent"
@@ -199,7 +196,17 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="1️⃣ 点击「前往开启无障碍服务」，找到「抢单助手」并开启\n\n2️⃣ 授予悬浮窗权限\n\n3️⃣ 填写关键词（如：东方学院），点保存\n\n4️⃣ 点击「启动悬浮窗」\n\n5️⃣ 切换到外卖接单App，点悬浮窗上的开关开始抢单\n\n⚠️ 命中关键词时手机会震动提示"
+                    android:text="1️⃣ 点击「前往开启无障碍服务」，找到「抢单助手」并开启
+
+2️⃣ 授予悬浮窗权限
+
+3️⃣ 填写关键词（如：东方学院），点保存
+
+4️⃣ 点击「启动悬浮窗」
+
+5️⃣ 切换到外卖接单App，点悬浮窗上的开关开始抢单
+
+⚠️ 命中关键词时手机会震动提示"
                     android:textSize="13sp"
                     android:textColor="#555555"
                     android:lineSpacingExtra="4dp"/>
