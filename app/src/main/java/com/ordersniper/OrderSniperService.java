@@ -1,6 +1,7 @@
 package com.ordersniper;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -78,8 +79,17 @@ public class OrderSniperService extends AccessibilityService {
         filter.addAction(ACTION_KEYWORDS_CHANGED);
         registerReceiver(controlReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
 
-        // 强制请求触摸探索模式，让 MIUI 分配窗口给无障碍服务
-        requestTouchExplorationMode(true);
+        // 强制设置触摸探索模式，让 MIUI 分配窗口给无障碍服务
+        AccessibilityServiceInfo info = new AccessibilityServiceInfo();
+        info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+                | AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
+                | AccessibilityEvent.TYPE_VIEW_SCROLLED;
+        info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
+        info.flags |= AccessibilityServiceInfo.FLAG_INCLUDE_NOT_IMPORTANT_VIEWS
+                | AccessibilityServiceInfo.FLAG_REPORT_VIEW_IDS
+                | AccessibilityServiceInfo.FLAG_RETRIEVE_INTERACTIVE_WINDOWS;
+        info.notificationTimeout = 0;
+        setServiceInfo(info);
 
         Log.d(TAG, "无障碍服务已连接，isRunning=" + OrderSniperService.isRunning);
     }
