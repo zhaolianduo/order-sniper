@@ -78,6 +78,9 @@ public class OrderSniperService extends AccessibilityService {
         filter.addAction(ACTION_KEYWORDS_CHANGED);
         registerReceiver(controlReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
 
+        // 强制请求触摸探索模式，让 MIUI 分配窗口给无障碍服务
+        requestTouchExplorationMode(true);
+
         Log.d(TAG, "无障碍服务已连接，isRunning=" + OrderSniperService.isRunning);
     }
 
