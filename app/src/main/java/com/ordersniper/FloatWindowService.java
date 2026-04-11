@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.util.Log;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.os.IBinder;
@@ -132,16 +133,13 @@ public class FloatWindowService extends Service {
 
         // 开关按钮
         btnToggle.setOnClickListener(v -> {
-            if (OrderSniperService.instance == null) {
-                Toast.makeText(this, "抢单服务未运行，请先开启无障碍服务", Toast.LENGTH_SHORT).show();
-                return;
-            }
             // 立即切换本地状态并更新UI
             isRunning = !isRunning;
             updateUI();
-            // 发送广播让抢单服务也切换状态
+            // 发送广播让抢单服务也切换状态（不依赖 instance，直接广播）
             Intent intent = new Intent(OrderSniperService.ACTION_TOGGLE);
             sendBroadcast(intent);
+            Log.d("FloatWindowService", "发送TOGGLE广播, isRunning=" + isRunning);
             Toast.makeText(this, isRunning ? "已开始抢单" : "已停止抢单", Toast.LENGTH_SHORT).show();
         });
 
