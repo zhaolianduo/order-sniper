@@ -5,10 +5,8 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Color;
 import android.util.Log;
 import android.graphics.PixelFormat;
@@ -47,17 +45,6 @@ public class FloatWindowService extends Service {
 
     private TextView tvStatus;
     private TextView btnToggle;
-    private boolean isRunning = false;
-
-    private BroadcastReceiver statusReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (ACTION_STATUS_UPDATE.equals(intent.getAction())) {
-                isRunning = intent.getBooleanExtra("running", false);
-                updateUI();
-            }
-        }
-    };
 
     @Override
     public void onCreate() {
@@ -68,13 +55,8 @@ public class FloatWindowService extends Service {
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         initFloatWindow();
 
-        IntentFilter filter = new IntentFilter(ACTION_STATUS_UPDATE);
-        registerReceiver(statusReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
-
-        // 启动时主动查询抢单服务状态
         if (OrderSniperService.instance != null) {
-            isRunning = OrderSniperService.instance.isRunning();
-            Toast.makeText(this, "检测到抢单服务，状态: " + (isRunning ? "运行中" : "已停止"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "检测到抢单服务，状态: " + (OrderSniperService.isRunning ? "运行中" : "已停止"), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "抢单服务未启动，请先在无障碍设置中开启", Toast.LENGTH_LONG).show();
         }
@@ -131,16 +113,12 @@ public class FloatWindowService extends Service {
             }
         });
 
-        // 开关按钮
+        // 开关按钮 - 直接操作静态变量，和 OrderSniperService 共享状态
         btnToggle.setOnClickListener(v -> {
-            // 立即切换本地状态并更新UI
-            isRunning = !isRunning;
+            OrderSniperService.isRunning = !OrderSniperService.isRunning;
+            Log.d("FloatWindowService", "切换抢单状态 -> " + (OrderSniperService.isRunning ? "开启" : "关闭"));
             updateUI();
-            // 发送广播让抢单服务也切换状态（不依赖 instance，直接广播）
-            Intent intent = new Intent(OrderSniperService.ACTION_TOGGLE);
-            sendBroadcast(intent);
-            Log.d("FloatWindowService", "发送TOGGLE广播, isRunning=" + isRunning);
-            Toast.makeText(this, isRunning ? "已开始抢单" : "已停止抢单", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, OrderSniperService.isRunning ? "已开始抢单" : "已停止抢单", Toast.LENGTH_SHORT).show();
         });
 
         // 关闭悬浮窗（不停止服务）
@@ -163,7 +141,7 @@ public class FloatWindowService extends Service {
 
     private void updateUI() {
         if (tvStatus == null || btnToggle == null) return;
-        if (isRunning) {
+        if (OrderSniperService.isRunning) {
             tvStatus.setText("抢单中");
             tvStatus.setTextColor(Color.parseColor("#FF6600"));
             btnToggle.setText("停止抢单");
@@ -192,9 +170,6 @@ public class FloatWindowService extends Service {
         if (floatView != null && floatView.getParent() != null) {
             windowManager.removeView(floatView);
         }
-        try {
-            unregisterReceiver(statusReceiver);
-        } catch (Exception ignored) {}
     }
 
     private void createNotificationChannel() {

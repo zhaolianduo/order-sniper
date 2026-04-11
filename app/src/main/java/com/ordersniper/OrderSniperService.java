@@ -31,6 +31,9 @@ import java.util.List;
  */
 public class OrderSniperService extends AccessibilityService {
 
+    // 静态变量，FloatWindowService 和 OrderSniperService 共享同一个 isRunning 状态
+    public static volatile boolean isRunning = false;
+
     private static final String TAG = "OrderSniperService";
     public static final String ACTION_TOGGLE = "com.ordersniper.TOGGLE";
     public static final String ACTION_KEYWORDS_CHANGED = "com.ordersniper.KEYWORDS_CHANGED";
@@ -40,7 +43,7 @@ public class OrderSniperService extends AccessibilityService {
     // 单例引用
     public static OrderSniperService instance;
 
-    private boolean isRunning = false;
+    // 静态 isRunning 已在类顶部声明
     private List<String> keywords = new ArrayList<>();
     private Handler handler = new Handler(Looper.getMainLooper());
 
@@ -53,8 +56,8 @@ public class OrderSniperService extends AccessibilityService {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (ACTION_TOGGLE.equals(action)) {
-                isRunning = !isRunning;
-                Log.d(TAG, "抢单服务状态: " + (isRunning ? "开启" : "关闭"));
+                OrderSniperService.isRunning = !OrderSniperService.isRunning;
+                Log.d(TAG, "抢单服务状态: " + (OrderSniperService.isRunning ? "开启" : "关闭"));
                 updateNotification();
                 broadcastStatus();
             } else if (ACTION_KEYWORDS_CHANGED.equals(action)) {
@@ -76,16 +79,7 @@ public class OrderSniperService extends AccessibilityService {
         filter.addAction(ACTION_KEYWORDS_CHANGED);
         registerReceiver(controlReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
 
-        // 广播初始状态，让悬浮窗同步
-        broadcastStatus();
-
-        Log.d(TAG, "无障碍服务已连接");
-    }
-
-    private void broadcastStatus() {
-        Intent update = new Intent(FloatWindowService.ACTION_STATUS_UPDATE);
-        update.putExtra("running", isRunning);
-        sendBroadcast(update);
+        Log.d(TAG, "无障碍服务已连接，isRunning=" + OrderSniperService.isRunning);
     }
 
     private void createNotificationChannel() {
@@ -111,7 +105,7 @@ public class OrderSniperService extends AccessibilityService {
 
         Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("🦞 抢单助手运行中")
-            .setContentText(isRunning ? "监控中，等待抢单..." : "已暂停，点击开启")
+            .setContentText(OrderSniperService.isRunning ? "监控中，等待抢单..." : "已暂停，点击开启")
             .setSmallIcon(android.R.drawable.ic_menu_compass)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
@@ -136,7 +130,7 @@ public class OrderSniperService extends AccessibilityService {
 
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("🦞 抢单助手运行中")
-                .setContentText(isRunning ? "监控中，等待抢单..." : "已暂停，点击开启")
+                .setContentText(OrderSniperService.isRunning ? "监控中，等待抢单..." : "已暂停，点击开启")
                 .setSmallIcon(android.R.drawable.ic_menu_compass)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
@@ -162,7 +156,7 @@ public class OrderSniperService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        if (!isRunning) return;
+        if (!OrderSniperService.isRunning) return;
 
         int type = event.getEventType();
         if (type != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
@@ -319,9 +313,5 @@ public class OrderSniperService extends AccessibilityService {
         try {
             unregisterReceiver(controlReceiver);
         } catch (Exception ignored) {}
-    }
-
-    public boolean isRunning() {
-        return isRunning;
     }
 }
