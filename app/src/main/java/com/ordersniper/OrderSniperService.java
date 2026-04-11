@@ -185,6 +185,17 @@ public class OrderSniperService extends AccessibilityService {
         AccessibilityNodeInfo root = getRootInActiveWindow();
         if (root == null) return;
 
+        // 调试：打印当前窗口包名，防止抢到自己的悬浮窗
+        String rootPackage = root.getPackageName() == null ? "null" : root.getPackageName().toString();
+        Log.d(TAG, "当前窗口包名: " + rootPackage);
+
+        // 过滤：如果不是京东秒送/达达，直接跳过
+        if (rootPackage != null && !rootPackage.contains("dada") && !rootPackage.contains("jd")) {
+            Log.d(TAG, "非目标App窗口，跳过扫描");
+            root.recycle();
+            return;
+        }
+
         try {
             scanAndClick(root);
         } finally {
