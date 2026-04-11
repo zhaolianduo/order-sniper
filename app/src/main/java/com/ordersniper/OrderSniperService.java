@@ -59,7 +59,6 @@ public class OrderSniperService extends AccessibilityService {
                 OrderSniperService.isRunning = !OrderSniperService.isRunning;
                 Log.d(TAG, "抢单服务状态: " + (OrderSniperService.isRunning ? "开启" : "关闭"));
                 updateNotification();
-                broadcastStatus();
             } else if (ACTION_KEYWORDS_CHANGED.equals(action)) {
                 loadKeywords();
             }
