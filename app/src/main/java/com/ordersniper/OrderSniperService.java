@@ -155,7 +155,11 @@ public class OrderSniperService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        if (!OrderSniperService.isRunning) return;
+        // 每次收到页面变化事件，都检查当前抢单状态（用于调试）
+        if (!OrderSniperService.isRunning) {
+            return;
+        }
+        Log.d(TAG, "收到页面事件，抢单状态=开启，开始扫描...");
 
         int type = event.getEventType();
         if (type != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
