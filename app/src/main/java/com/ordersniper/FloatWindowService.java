@@ -46,7 +46,7 @@ public class FloatWindowService extends Service {
     private WindowManager.LayoutParams params;
 
     private TextView tvStatus;
-    private View btnToggle;
+    private TextView btnToggle;
     private boolean isRunning = false;
 
     private BroadcastReceiver statusReceiver = new BroadcastReceiver() {
